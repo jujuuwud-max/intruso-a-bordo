@@ -295,11 +295,11 @@ $('mk').onclick=()=>{ROOM_LIMIT=+$('maxplayers').value||8;CODE=Array.from({lengt
 $('jn').onclick=()=>{const c=$('code').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length<4){$('ost').textContent='Escribe el código de la sala.';return}CODE=c;joinRoom(false)};
 $('bMenu').onclick=()=>leaveOnline();
 $('again').onclick=()=>{$('end').hidden=true;enterLobby()};
-const LB=[2000,300,700,490],LAP={x:2200,y:620},LCON={x:2500,y:690};
+const LB=[2000,300,700,519.19],LAP={x:2200,y:620},LCON={x:2500,y:690};
 let CODE=Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ'[R()*24|0]).join('');
 let ident=[0,1,2,3,4,5,6,7],mapOn=false,ROOM_LIMIT=8;
 function enterLobby(){if(ON){enterOnLobby();return}
- const P=ident.map((c,i)=>({i,n:NAMES[c],c:COL[c],x:LB[0]+60+R()*(LB[2]-120),y:LB[1]+80+R()*(LB[3]-140),alive:true,imp:false,tl:0,cd:0,room:0,path:[],wait:0,step:0,face:1,mv:false,sus:0}));
+ const P=ident.map((c,i)=>({i,n:NAMES[c],c:COL[c],x:LB[0]+LB[2]*(.30+R()*.40),y:LB[1]+LB[3]*(.22+R()*.42),alive:true,imp:false,tl:0,cd:0,room:0,path:[],wait:0,step:0,face:1,mv:false,sus:0}));
  G={P,me:P[0],bodies:[],done:0,total:99,mode:'lobby',my:[],myDone:new Set(),emer:0};
  $('hud').hidden=false;$('top').hidden=true;$('bMap').hidden=true;$('bMenu').hidden=false;$('bKill').hidden=true;$('bRep').hidden=true;
  $('role').textContent='Sala '+CODE;$('role').style.color='var(--cy)';
@@ -390,7 +390,12 @@ const LOBBY_IMG=new Image();LOBBY_IMG.src='Lobby.webp';
 function drawLobby2(){
  const cx=LB[0]+LB[2]/2,cy=LB[1]+LB[3]/2;
  ctx.fillStyle='#050607';ctx.fillRect(LB[0]-1200,LB[1]-800,LB[2]+2400,LB[3]+1600);
- if(LOBBY_IMG.complete&&LOBBY_IMG.naturalWidth){ctx.drawImage(LOBBY_IMG,LB[0],LB[1],LB[2],LB[3]);}
+ if(LOBBY_IMG.complete&&LOBBY_IMG.naturalWidth){{
+   const iw=LOBBY_IMG.naturalWidth,ih=LOBBY_IMG.naturalHeight;
+   const scale=Math.min(LB[2]/iw,LB[3]/ih);
+   const dw=iw*scale,dh=ih*scale;
+   ctx.drawImage(LOBBY_IMG,LB[0]+(LB[2]-dw)/2,LB[1]+(LB[3]-dh)/2,dw,dh);
+  }}
  else {ctx.fillStyle='#26343a';ctx.fillRect(LB[0],LB[1],LB[2],LB[3]);}
  // Puntos interactivos del lobby
  cons(LAP.x,LAP.y,'#6fe3ff','Personalizar');cons(LSET.x,LSET.y,'#ffb02e','Ajustes');cons(LCON.x,LCON.y,'#5be37d','Empezar');

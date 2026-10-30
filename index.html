@@ -268,7 +268,7 @@ function draw(){
  ctx.setTransform(z,0,0,z,cv.width/2-m.x*z,cv.height/2-m.y*z);
  G.mode==='lobby'?drawLobby2():drawMap();const vr=G.mode==='lobby'||!m.alive?1e5:(m.imp?380:320)*OPT.vis;
  for(const b of G.bodies)if(dist(m,b)<vr)drawP(b,true);
- for(const p of G.P.filter(p=>p.alive&&dist(m,p)<vr+30).sort((a,b)=>a.y-b.y))drawP(p,false);
+ for(const p of G.P.filter(p=>p.alive&&Math.abs(p.x-m.x)<W/(2*z)+60&&Math.abs(p.y-m.y)<H/(2*z)+60).sort((a,b)=>a.y-b.y))drawP(p,false);
  ctx.setTransform(1,0,0,1,0,0);
  if(m.alive&&G.mode!=='lobby'){const x=cv.width/2,y=cv.height/2,g=ctx.createRadialGradient(x,y,vr*z*.3,x,y,vr*z);g.addColorStop(0,'rgba(5,9,15,0)');g.addColorStop(1,'rgba(5,9,15,.97)');ctx.fillStyle=g;ctx.fillRect(0,0,cv.width,cv.height)}
  if(joy.on){ctx.strokeStyle='rgba(255,255,255,.4)';ctx.lineWidth=3;ctx.beginPath();ctx.arc(joy.x0*dpr,joy.y0*dpr,50*dpr,0,7);ctx.stroke();ctx.fillStyle='rgba(255,255,255,.35)';ctx.beginPath();ctx.arc((joy.x0+joy.x*50)*dpr,(joy.y0+joy.y*50)*dpr,22*dpr,0,7);ctx.fill()}

@@ -1,9 +1,13 @@
 {
   "name": "intruso-a-bordo",
-  "version": "1.0.0",
-  "description": "Servidor del juego Intruso a bordo",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Intruso a bordo con salas online y perfiles de amigos",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

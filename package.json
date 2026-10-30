@@ -1,0 +1,9 @@
+{
+  "name": "intruso-a-bordo",
+  "version": "1.0.0",
+  "description": "Servidor del juego Intruso a bordo",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

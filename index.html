@@ -64,7 +64,7 @@ button:disabled{opacity:.35}
  <button id="bMap">Mapa (M)</button><button id="bMenu" hidden>Salir</button><div id="acts"><button id="bUse" class="act">Usar</button><button id="bKill" class="act kill">Matar</button><button id="bRep" class="act rep">Reportar</button></div>
 </div>
 <div id="map" hidden><canvas id="mcv" width="560" height="400"></canvas></div><div id="toast"></div>
-<div id="start" class="ov menu"><div class="mm"><h1>Intruso a bordo</h1><p class="sub">Ocho tripulantes. Dos impostores. Una nave.</p><div id="m0" class="mm"><button id="play" class="primary big">Jugar</button><button id="skins">Skins y accesorios</button><button id="profileBtn">Perfil y amigos</button><button id="how">Cómo jugar</button><div id="howt" hidden>Completa tus tareas y vota en las reuniones para expulsar a los impostores. Si eres impostor, elimina a la tripulación sin que te descubran.<br><br>Mover: WASD o flechas (en móvil, arrastra el dedo). Usar: E. Matar: Q. Reportar: R. Mapa: M.</div></div><div id="m1" class="mm" hidden><button id="vbots" class="primary big">Contra bots</button><button id="von" class="primary big">En línea</button><button class="bk" data-to="m0">Atrás</button></div><div id="m2" class="mm" hidden><button id="mk" class="primary big">Crear sala</button><input id="code" maxlength="6" placeholder="CÓDIGO" autocomplete="off"><button id="jn">Unirse con código</button><p id="ost" class="sub"></p><button class="bk" data-to="m1">Atrás</button></div></div></div>
+<div id="start" class="ov menu"><div class="mm"><h1>Intruso a bordo</h1><p class="sub">Ocho tripulantes. Dos impostores. Una nave.</p><div id="m0" class="mm"><button id="play" class="primary big">Jugar</button><button id="skins">Skins y accesorios</button><button id="profileBtn">Perfil y amigos</button><button id="how">Cómo jugar</button><div id="howt" hidden>Completa tus tareas y vota en las reuniones para expulsar a los impostores. Si eres impostor, elimina a la tripulación sin que te descubran.<br><br>Mover: WASD o flechas (en móvil, arrastra el dedo). Usar: E. Matar: Q. Reportar: R. Mapa: M.</div></div><div id="m1" class="mm" hidden><button id="vbots" class="primary big">Contra bots</button><button id="von" class="primary big">En línea</button><button class="bk" data-to="m0">Atrás</button></div><div id="m2" class="mm" hidden><label for="maxplayers" style="display:block;margin:12px 0 6px">Jugadores máximos en la sala</label><select id="maxplayers" style="width:100%;padding:12px;border-radius:10px;margin-bottom:12px;background:#101b2c;color:white;border:1px solid #52627a"><option value="2">2 jugadores</option><option value="3">3 jugadores</option><option value="4">4 jugadores</option><option value="5">5 jugadores</option><option value="6">6 jugadores</option><option value="7">7 jugadores</option><option value="8" selected>8 jugadores</option></select><button id="mk" class="primary big">Crear sala</button><input id="code" maxlength="6" placeholder="CÓDIGO" autocomplete="off"><button id="jn">Unirse con código</button><p id="ost" class="sub"></p><button class="bk" data-to="m1">Atrás</button></div></div></div>
 <div id="rv" class="ov" hidden><div class="card"><h1 id="rt"></h1><p id="rp"></p></div></div>
 <div id="modal" class="ov" hidden><div class="card" id="mc"></div></div>
 <div id="meet" class="ov" hidden><div class="card wide"><h3 id="mt"></h3><div id="grid"></div><div id="chat"></div><div class="row"><button id="skip">Saltar voto</button><span id="timer"></span></div></div></div>
@@ -291,13 +291,13 @@ $('play').onclick=()=>show('m1');$('skins').onclick=openSkins;$('bMap').onclick=
 document.querySelectorAll('.bk').forEach(b=>b.onclick=()=>show(b.dataset.to));
 $('vbots').onclick=()=>{ON=null;$('start').hidden=true;enterLobby()};
 $('von').onclick=()=>{$('ost').textContent='';show('m2')};
-$('mk').onclick=()=>{CODE=Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ'[R()*24|0]).join('');joinRoom(true)};
+$('mk').onclick=()=>{ROOM_LIMIT=+$('maxplayers').value||8;CODE=Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ'[R()*24|0]).join('');joinRoom(true)};
 $('jn').onclick=()=>{const c=$('code').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length<4){$('ost').textContent='Escribe el código de la sala.';return}CODE=c;joinRoom(false)};
 $('bMenu').onclick=()=>leaveOnline();
 $('again').onclick=()=>{$('end').hidden=true;enterLobby()};
 const LB=[2000,300,520,320],LAP={x:2070,y:370},LCON={x:2450,y:370};
 let CODE=Array.from({length:6},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ'[R()*24|0]).join('');
-let ident=[0,1,2,3,4,5,6,7],mapOn=false;
+let ident=[0,1,2,3,4,5,6,7],mapOn=false,ROOM_LIMIT=8;
 function enterLobby(){if(ON){enterOnLobby();return}
  const P=ident.map((c,i)=>({i,n:NAMES[c],c:COL[c],x:LB[0]+60+R()*(LB[2]-120),y:LB[1]+80+R()*(LB[3]-140),alive:true,imp:false,tl:0,cd:0,room:0,path:[],wait:0,step:0,face:1,mv:false,sus:0}));
  G={P,me:P[0],bodies:[],done:0,total:99,mode:'lobby',my:[],myDone:new Set(),emer:0};
@@ -380,7 +380,7 @@ function drawMini(){
 const OPT={imp:2,spd:1,kcd:20,tasks:3,vote:25,emer:1,vis:1},LSET={x:2260,y:345};
 const OD=[['imp','Impostores',[1,2,3],v=>v],['spd','Velocidad',[.75,1,1.25],v=>v+'x'],['kcd','Enfriamiento de matar',[10,20,30],v=>v+' s'],['tasks','Tareas por tripulante',[2,3,4],v=>v],['vote','Tiempo de votación',[15,25,40],v=>v+' s'],['emer','Reuniones de emergencia',[0,1,2],v=>v],['vis','Visión',[.75,1,1.5],v=>v+'x']];
 const PRE={'Clásico':{imp:2,spd:1,kcd:20,tasks:3,vote:25,emer:1,vis:1},'Caos':{imp:3,spd:1.25,kcd:10,tasks:2,vote:15,emer:2,vis:1.5},'Sigilo':{imp:1,spd:.75,kcd:30,tasks:4,vote:40,emer:0,vis:.75}};
-function lobbyInfo(){$('list').innerHTML=(ON?'Código de sala: <b>'+CODE+'</b><br>'+(ON.host?'Consola ámbar: ajustes<br>Consola verde: empezar':'Solo el anfitrión empieza la partida')+'<br><br>':'Portátil azul: color<br>Consola ámbar: ajustes<br>Consola verde: empezar<br><br>')+OD.map(o=>o[1]+': '+o[3](OPT[o[0]])).join('<br>')}
+function lobbyInfo(){$('list').innerHTML=(ON?'Código de sala: <b>'+CODE+'</b><br>Jugadores: '+Object.keys(ON.sl).length+'/'+(ON.maxPlayers||8)+'<br>'+(ON.host?'Consola ámbar: ajustes<br>Consola verde: empezar':'Solo el anfitrión empieza la partida')+'<br><br>':'Portátil azul: color<br>Consola ámbar: ajustes<br>Consola verde: empezar<br><br>')+OD.map(o=>o[1]+': '+o[3](OPT[o[0]])).join('<br>')}
 function openOpts(){G.mode='menu';$('modal').hidden=false;
  const rd=()=>{$('mc').innerHTML='<h3>Ajustes de la partida</h3><div class="pre">'+Object.keys(PRE).map(k=>`<button class="sg" data-p="${k}">${k}</button>`).join('')+'</div>'+OD.map(o=>`<div class="op"><span>${o[1]}</span><div>${o[2].map(v=>`<button class="sg ${OPT[o[0]]===v?'on':''}" data-o="${o[0]}" data-v="${v}">${o[3](v)}</button>`).join('')}</div></div>`).join('')+'<br><button id="cx">Listo</button>';$('cx').onclick=()=>{$('modal').hidden=true;G.mode='lobby';lobbyInfo()}};
  rd();$('mc').onclick=e=>{const p=e.target.closest('[data-p]'),b=e.target.closest('[data-o]');if(p)Object.assign(OPT,PRE[p.dataset.p]);else if(b)OPT[b.dataset.o]=+b.dataset.v;else return;rd()}}
@@ -464,16 +464,16 @@ async function joinRoom(host){
  try{c=window.claude&&await window.claude.use('room')}catch(e){}
 
  let rm;try{rm=c?await c.join('am-'+CODE.toLowerCase()):await p2p(CODE.toLowerCase(),host)}catch(e){st.textContent=host?'No se pudo crear la sala. Prueba otra vez.':'No se encontró la sala. Revisa el código y tu conexión.';return}
- ON={rm,host,me:null,sl:{},pl:{},q:[],eq:[],n:0,e:0,sa:{},se:null,lm:'lobby',pt:0,st:0,w:0,my:0,os:'',t0:performance.now()};ident=[0,1,2,3,4,5,6,7];
+ ON={rm,host,me:null,sl:{},pl:{},q:[],eq:[],n:0,e:0,sa:{},se:null,lm:'lobby',pt:0,st:0,w:0,my:0,os:'',t0:performance.now(),maxPlayers:host?ROOM_LIMIT:8};ident=[0,1,2,3,4,5,6,7];
  rm.presence({in:1,x:0,y:0,f:1,mv:0}).catch(()=>{});
  let me=null;for(let k=0;k<30&&!me;k++){me=rm.peers().find(p=>p.isMe&&p.sameTab);if(!me)await sleep(100)}
  if(!me){bad('No se pudo conectar a la sala.');return}
  ON.me=me.peer;
  if(host){ON.sl[ON.me]=0;rm.presence({host:1}).catch(()=>{})}
- else{let g=null;for(let k=0;k<50&&!g;k++){await sleep(100);const hp=rm.peers().find(p=>p.presence.host);g=hp&&hp.presence.g;if(g&&g.sl[ON.me]===undefined)g=null}
-  if(!g){bad('No se encontró ninguna sala con ese código.');return}
+ else{let g=null,full=false;for(let k=0;k<50&&!g;k++){await sleep(100);const hp=rm.peers().find(p=>p.presence.host);const hg=hp&&hp.presence.g;if(hg&&hg.sl&&hg.sl[ON.me]!==undefined)g=hg;else if(hg&&hg.m==='lobby'&&Object.keys(hg.sl||{}).length>=(hg.maxPlayers||8))full=true}
+  if(!g){bad(full?'La sala está llena. Prueba otra sala.':'No se encontró la sala. Revisa el código y tu conexión.');return}
   if(g.m!=='lobby'){bad('Esa partida ya ha empezado.');return}
-  ON.sl=g.sl;ON.my=g.sl[ON.me]}
+  ON.sl=g.sl;ON.my=g.sl[ON.me];ON.maxPlayers=g.maxPlayers||8}
  $('start').hidden=true;enterLobby()}
 function leaveOnline(msg){if(ON)Promise.resolve(ON.rm.leave()).catch(()=>{});ON=null;G=null;mapOn=false;['hud','modal','meet','end','rv','map'].forEach(k=>$(k).hidden=true);$('start').hidden=false;show('m0');if(msg)toast(msg)}
 function enterOnLobby(){
@@ -489,7 +489,7 @@ function lobSync(by,dt){
   const q=by[k];if(k!==ON.me&&q&&q.presence.x!==undefined)mvTo(o,q.presence,dt)}
  for(const s in ON.pl)if(!us.includes(+s))delete ON.pl[s];
  G.P=Object.values(ON.pl).sort((a,b)=>a.i-b.i);G.me=ON.pl[my]}
-function snap(){const L=G.mode==='lobby'||G.mode==='menu',g={m:G.mode==='task'?'play':L?'lobby':G.mode,sl:ON.sl,o:OPT,w:ON.w||0};
+function snap(){const L=G.mode==='lobby'||G.mode==='menu',g={m:G.mode==='task'?'play':L?'lobby':G.mode,sl:ON.sl,o:OPT,w:ON.w||0,maxPlayers:ON.maxPlayers||8};
  if(!L){g.d=G.done;g.t=G.total;g.im=G.P.filter(p=>p.imp).map(p=>p.i);g.p=G.P.map(p=>[p.x|0,p.y|0,p.face,p.mv?1:0,p.alive?1:0]);g.b=G.bodies.map(b=>[b.x|0,b.y|0,b.i])}return g}
 function pushSnap(){ON.rm.presence({g:snap()}).catch(()=>{})}
 function startOnline(){if(!ON||!ON.host)return;newGame({slot:0,imps:[0,1,2,3,4,5,6,7].sort(()=>R()-.5).slice(0,OPT.imp),hs:Object.values(ON.sl).filter(s=>s)});ON.w=0;pushSnap()}
@@ -513,7 +513,7 @@ function netTick(dt){
  const pr=ON.rm.peers(),me=pr.find(p=>p.isMe&&p.sameTab);if(!me)return;ON.me=me.peer;
  const by={};pr.forEach(p=>by[p.peer]=p);const now=performance.now();
  if(ON.host){
-  if(G.mode==='lobby')for(const p of pr)if(p.presence.in&&!(p.peer in ON.sl)){let s=0;const u=Object.values(ON.sl);while(u.includes(s))s++;if(s<8)ON.sl[p.peer]=s}
+  if(G.mode==='lobby')for(const p of pr)if(p.presence.in&&!(p.peer in ON.sl)){let s=0;const u=Object.values(ON.sl);while(u.includes(s))s++;if(s<Math.min(8,ON.maxPlayers||8))ON.sl[p.peer]=s}
   for(const k in ON.sl)if(!by[k]){const s=ON.sl[k];delete ON.sl[k];if(G.mode!=='lobby'&&G.P[s])G.P[s].h=false}
   for(const p of pr){if(p.isMe)continue;const s=ON.sl[p.peer];if(s===undefined)continue;
    for(const a of p.presence.a||[])if(a.id>(ON.sa[p.peer]||0)){ON.sa[p.peer]=a.id;handleAct(s,a)}
